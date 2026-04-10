@@ -153,4 +153,26 @@ public class ProfesorServiceImpl implements ProfesorService {
                         + " · " + profesor.getEspecialidad()
         );
     }
+
+    /**
+     * Verifica las credenciales del profesor delegando en el método
+     * de la entidad que implementa {@link u.universidad.interfaces.Autenticable}.
+     *
+     * Polimorfismo en acción: Profesor.login() es llamado a través del contrato
+     * de la interfaz Autenticable definida en el diagrama UML.
+     *
+     * @param id       ID del profesor en base de datos
+     * @param usuario  correo electrónico institucional
+     * @param password contraseña del profesor
+     * @return true si las credenciales son válidas
+     * @throws java.util.NoSuchElementException si no existe profesor con el ID dado
+     */
+    @Override
+    public boolean login(Long id, String usuario, String password) {
+        Profesor profesor = profesorRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException(
+                        "No se encontró ningún profesor con ID: " + id));
+        // Polimorfismo: Profesor implementa Autenticable
+        return profesor.login(usuario, password);
+    }
 }

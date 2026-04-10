@@ -70,4 +70,26 @@ public class EstudianteServiceImpl implements EstudianteService {
         }
         estudianteRepository.deleteById(id);
     }
+
+    /**
+     * Verifica las credenciales del estudiante delegando en el método
+     * de la entidad que implementa {@link u.universidad.interfaces.Autenticable}.
+     *
+     * Polimorfismo en acción: Estudiante.login() es llamado a través del contrato
+     * de la interfaz Autenticable definida en el diagrama UML.
+     *
+     * @param id       ID del estudiante en base de datos
+     * @param usuario  correo electrónico institucional
+     * @param password contraseña del estudiante
+     * @return true si las credenciales son válidas
+     * @throws NoSuchElementException si no existe estudiante con el ID dado
+     */
+    @Override
+    public boolean login(Long id, String usuario, String password) {
+        Estudiante estudiante = estudianteRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException(
+                        "No se encontró ningún estudiante con ID: " + id));
+        // Polimorfismo: Estudiante implementa Autenticable
+        return estudiante.login(usuario, password);
+    }
 }
