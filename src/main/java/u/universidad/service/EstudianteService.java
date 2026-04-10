@@ -57,4 +57,17 @@ public interface EstudianteService {
      * @param id identificador del estudiante a eliminar
      */
     void eliminar(Long id);
+
+    /**
+     * Verifica las credenciales de un estudiante delegando en el método
+     * {@link u.universidad.interfaces.Autenticable#login(String, String)} de la entidad.
+     *
+     * Expone el comportamiento de la interfaz Autenticable del diagrama UML.
+     *
+     * @param id       ID del estudiante que intenta autenticarse
+     * @param usuario  correo electrónico institucional
+     * @param password contraseña del estudiante
+     * @return true si las credenciales son correctas, false en caso contrario
+     */
+    boolean login(Long id, String usuario, String password);
 }

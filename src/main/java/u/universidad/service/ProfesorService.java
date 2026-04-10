@@ -66,4 +66,17 @@ public interface ProfesorService {
      * @param nota        nota asignada (0.0 - 5.0)
      */
     void evaluarEstudiante(Long profesorId, Long estudianteId, double nota);
+
+    /**
+     * Verifica las credenciales de un profesor delegando en el método
+     * {@link u.universidad.interfaces.Autenticable#login(String, String)} de la entidad.
+     *
+     * Expone el comportamiento de la interfaz Autenticable del diagrama UML.
+     *
+     * @param id       ID del profesor que intenta autenticarse
+     * @param usuario  correo electrónico institucional
+     * @param password contraseña del profesor
+     * @return true si las credenciales son correctas, false en caso contrario
+     */
+    boolean login(Long id, String usuario, String password);
 }
