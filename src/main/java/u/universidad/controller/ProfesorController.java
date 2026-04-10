@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import u.universidad.dto.LoginDTO;
 import u.universidad.dto.ProfesorDTO;
 import u.universidad.entity.Profesor;
 import u.universidad.exception.NotificacionException;
@@ -102,6 +103,30 @@ public class ProfesorController {
                     "advertencia", "La evaluación fue registrada pero el correo al estudiante no pudo enviarse.",
                     "detalle", e.getMessage()
             ));
+        }
+    }
+
+    @PostMapping("/{id}/login")
+    @Operation(summary = "Autenticar profesor — Autenticable del diagrama UML",
+               description = "Verifica las credenciales del profesor. " +
+                             "El usuario debe ser su correo institucional y la contraseña su especialidad.")
+    public ResponseEntity<?> login(@PathVariable Long id,
+                                   @Valid @RequestBody LoginDTO dto) {
+        try {
+            boolean autenticado = profesorService.login(id, dto.usuario(), dto.password());
+            if (autenticado) {
+                return ResponseEntity.ok(Map.of(
+                        "autenticado", true,
+                        "mensaje", "Credenciales correctas. Acceso concedido."
+                ));
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                        "autenticado", false,
+                        "mensaje", "Credenciales incorrectas. Acceso denegado."
+                ));
+            }
+        } catch (java.util.NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
         }
     }
 }

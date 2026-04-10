@@ -83,4 +83,28 @@ public class EstudianteController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @PostMapping("/{id}/login")
+    @Operation(summary = "Autenticar estudiante — Autenticable del diagrama UML",
+               description = "Verifica las credenciales del estudiante. " +
+                             "El usuario debe ser su correo institucional y la contraseña su código académico.")
+    public ResponseEntity<?> login(@PathVariable Long id,
+                                   @Valid @RequestBody LoginDTO dto) {
+        try {
+            boolean autenticado = estudianteService.login(id, dto.usuario(), dto.password());
+            if (autenticado) {
+                return ResponseEntity.ok(Map.of(
+                        "autenticado", true,
+                        "mensaje", "Credenciales correctas. Acceso concedido."
+                ));
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                        "autenticado", false,
+                        "mensaje", "Credenciales incorrectas. Acceso denegado."
+                ));
+            }
+        } catch (java.util.NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
