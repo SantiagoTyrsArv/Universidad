@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import u.universidad.dto.ProfesorDTO;
 import u.universidad.entity.Profesor;
+import u.universidad.exception.NotificacionException;
 import u.universidad.service.ProfesorService;
 
 import java.util.List;
@@ -82,7 +83,7 @@ public class ProfesorController {
     }
 
     @PostMapping("/{profesorId}/evaluar/{estudianteId}")
-    @Operation(summary = "Evaluar a un estudiante (Evaluador + Notificable en acción)")
+    @Operation(summary = "Evaluar a un estudiante (Evaluador + Notificable + Email real en acción)")
     public ResponseEntity<?> evaluarEstudiante(@PathVariable Long profesorId,
                                                @PathVariable Long estudianteId,
                                                @RequestParam double nota) {
@@ -90,12 +91,17 @@ public class ProfesorController {
             profesorService.evaluarEstudiante(profesorId, estudianteId, nota);
             return ResponseEntity.ok(Map.of(
                     "mensaje", "Evaluación registrada correctamente.",
-                    "detalle", "Revisa los logs del servidor para ver la notificación enviada al estudiante."
+                    "detalle", "Se envió un correo HTML con branding UCC al estudiante."
             ));
         } catch (java.util.NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (NotificacionException e) {
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(Map.of(
+                    "advertencia", "La evaluación fue registrada pero el correo al estudiante no pudo enviarse.",
+                    "detalle", e.getMessage()
+            ));
         }
     }
 }

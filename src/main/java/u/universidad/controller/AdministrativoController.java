@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import u.universidad.dto.AdministrativoDTO;
 import u.universidad.entity.Administrativo;
+import u.universidad.exception.NotificacionException;
 import u.universidad.service.AdministrativoService;
 
 import java.util.List;
@@ -82,17 +83,22 @@ public class AdministrativoController {
     }
 
     @PostMapping("/{id}/aprobar-solicitud")
-    @Operation(summary = "Aprobar una solicitud (Aprobador + Notificable en acción)")
+    @Operation(summary = "Aprobar una solicitud (Aprobador + Notificable + Email real en acción)")
     public ResponseEntity<?> aprobarSolicitud(@PathVariable Long id,
                                               @RequestParam String codigoSolicitud) {
         try {
             administrativoService.aprobarSolicitud(id, codigoSolicitud);
             return ResponseEntity.ok(Map.of(
                     "mensaje", "Solicitud [" + codigoSolicitud + "] aprobada correctamente.",
-                    "detalle", "Revisa los logs del servidor para ver la notificación enviada."
+                    "detalle", "Se envió un correo HTML con branding UCC al correo del administrativo."
             ));
         } catch (java.util.NoSuchElementException e) {
             return ResponseEntity.notFound().build();
+        } catch (NotificacionException e) {
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(Map.of(
+                    "advertencia", "La solicitud fue aprobada pero el correo no pudo enviarse.",
+                    "detalle", e.getMessage()
+            ));
         }
     }
 }
